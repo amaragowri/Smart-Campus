@@ -1,0 +1,47 @@
+SmartCampus/
+│
+├── index.php
+│
+├── config/
+│   ├── database.php
+│   └── config.php
+│
+├── assets/
+│   ├── css/
+│   ├── js/
+│   ├── images/
+│   └── icons/
+│
+├── auth/
+│   ├── student-login.php
+│   ├── faculty-login.php
+│   ├── exam-login.php
+│   ├── office-login.php
+│   ├── sac-login.php
+│   ├── admin-login.php
+│   ├── logout.php
+│   └── forgot-password.php
+│
+├── student/
+├── faculty/
+├── exam/
+├── office/
+├── sac/
+├── admin/
+│
+├── includes/
+│   ├── header.php
+│   ├── footer.php
+│   ├── navbar.php
+│   ├── sidebar.php
+│   └── auth-check.php
+│
+├── database/
+│   └── smartcampus.sql
+│
+├── uploads/
+│   ├── materials/
+│   ├── videos/
+│   └── documents/
+│
+└── receipts/

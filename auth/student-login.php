@@ -1,0 +1,315 @@
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+
+
+session_start();
+require_once "../config/database.php";
+
+$error = "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    $username = trim($_POST["username"] ?? "");
+    $password = $_POST["password"] ?? "";
+
+    if ($username === "" || $password === "") {
+
+        $error = "Please enter username and password.";
+
+    } else {
+
+        $sql = "SELECT user_id, username, password, role, status
+                FROM users
+                WHERE username = ?
+                LIMIT 1";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+
+        if ($result->num_rows === 1) {
+
+            $user = $result->fetch_assoc();
+
+            if ($user["status"] !== "ACTIVE") {
+
+                $error = "Your account is inactive.";
+
+            } elseif ($user["role"] !== "STUDENT") {
+
+                $error = "This login is only for students.";
+
+            } elseif (password_verify($password, $user["password"])) {
+
+                $_SESSION["user_id"] = $user["user_id"];
+                $_SESSION["username"] = $user["username"];
+                $_SESSION["role"] = $user["role"];
+
+                header("Location: ../student/dashboard.php");
+                exit();
+
+            } else {
+
+                $error = "Invalid username or password.";
+            }
+
+        } else {
+
+            $error = "Invalid username or password.";
+        }
+
+        $stmt->close();
+    }
+}
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Student Login | SmartCampus</title>
+
+    <link rel="stylesheet"
+      href="../assets/css/auth.css">
+
+</head>
+
+<body>
+
+<div class="login-page">
+
+    <div class="login-card">
+
+        <!-- Theme Toggle -->
+        <button
+            type="button"
+            class="theme-toggle"
+            id="themeToggle"
+            title="Change theme">
+            🌙
+        </button>
+
+        <!-- Header -->
+        <div class="login-header">
+
+            <div class="login-logo">
+                SC
+            </div>
+
+            <h1>SmartCampus</h1>
+
+            <p>Student Portal</p>
+
+        </div>
+
+
+        <!-- Error Message -->
+        <?php if ($error !== ""): ?>
+
+            <div class="alert alert-danger">
+                <?php echo htmlspecialchars($error); ?>
+            </div>
+
+        <?php endif; ?>
+
+
+        <!-- Login Form -->
+        <form method="POST" action="">
+
+            <!-- Username -->
+            <div class="form-group">
+
+                <label for="username">
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    class="form-control"
+                    placeholder="Enter your username"
+                    autocomplete="username"
+                    required>
+
+            </div>
+
+
+            <!-- Password -->
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <div class="password-wrapper">
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-control"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required>
+
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        id="passwordToggle"
+                        title="Show password">
+                        👁
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- Options -->
+            <div class="login-options">
+
+                <label class="remember-me">
+
+                    <input
+                        type="checkbox"
+                        name="remember">
+
+                    <span>Remember me</span>
+
+                </label>
+
+                <a href="forgot-password.php">
+                    Forgot Password?
+                </a>
+
+            </div>
+
+
+            <!-- Login Button -->
+            <button
+                type="submit"
+                class="btn btn-primary login-btn">
+
+                Login
+
+            </button>
+
+        </form>
+
+
+        <!-- Footer -->
+        <div class="login-footer">
+
+            <p>© 2026 SmartCampus</p>
+
+            <p>
+                Student Management Portal
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =========================
+   DARK / LIGHT THEME
+   ========================= */
+
+const themeToggle =
+    document.getElementById("themeToggle");
+
+const savedTheme =
+    localStorage.getItem("smartcampus-theme");
+
+if (savedTheme === "dark") {
+
+    document.body.classList.add("dark-theme");
+
+    themeToggle.textContent = "☀️";
+
+} else {
+
+    themeToggle.textContent = "🌙";
+}
+
+
+themeToggle.addEventListener("click", function () {
+
+    document.body.classList.toggle("dark-theme");
+
+    const isDark =
+        document.body.classList.contains("dark-theme");
+
+    if (isDark) {
+
+        localStorage.setItem(
+            "smartcampus-theme",
+            "dark"
+        );
+
+        themeToggle.textContent = "☀️";
+
+    } else {
+
+        localStorage.setItem(
+            "smartcampus-theme",
+            "light"
+        );
+
+        themeToggle.textContent = "🌙";
+    }
+
+});
+
+
+/* =========================
+   SHOW / HIDE PASSWORD
+   ========================= */
+
+const password =
+    document.getElementById("password");
+
+const passwordToggle =
+    document.getElementById("passwordToggle");
+
+
+passwordToggle.addEventListener("click", function () {
+
+    if (password.type === "password") {
+
+        password.type = "text";
+
+        passwordToggle.textContent = "🙈";
+        passwordToggle.title = "Hide password";
+
+    } else {
+
+        password.type = "password";
+
+        passwordToggle.textContent = "👁";
+        passwordToggle.title = "Show password";
+    }
+
+});
+
+</script>
+
+</body>
+
+</html>
