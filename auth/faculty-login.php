@@ -1,15 +1,19 @@
 <?php
 
 session_start();
-
+require_once "../config/config.php";
 require_once "../config/database.php";
 
 $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $username = trim($_POST["username"] ?? "");
-    $password = $_POST["password"] ?? "";
+    $csrf_token = $_POST["csrf_token"] ?? "";
+    if (!empty($csrf_token) && !verify_csrf_token($csrf_token)) {
+        $error = "Security validation failed. Please refresh and try again.";
+    } else {
+        $username = trim($_POST["username"] ?? "");
+        $password = $_POST["password"] ?? "";
 
     if ($username === "" || $password === "") {
 
@@ -61,6 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $stmt->close();
     }
+    }
 }
 
 ?>
@@ -77,8 +82,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <title>Faculty Login | SmartCampus</title>
 
-    <link rel="stylesheet"
-          href="../assets/css/auth.css">
+    <meta name="csrf-token" content="<?php echo generate_csrf_token(); ?>">
+    <link rel="stylesheet" href="../assets/css/toast.css">
+    <link rel="stylesheet" href="../assets/css/auth.css">
 
 </head>
 
@@ -139,7 +145,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <!-- LOGIN FORM -->
 
-        <form method="POST" action="">
+        <form method="POST" action="" data-async-auth data-role="FACULTY">
+            <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
 
 
             <!-- USERNAME -->
@@ -345,6 +352,9 @@ passwordToggle.addEventListener("click", function () {
 });
 
 </script>
+
+<script src="../assets/js/toast.js"></script>
+<script src="../assets/js/app.js"></script>
 
 </body>
 

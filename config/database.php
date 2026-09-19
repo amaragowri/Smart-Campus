@@ -7,10 +7,24 @@ $password = getenv('DB_PASS') !== false ? getenv('DB_PASS') : (getenv('MYSQL_PAS
 $database = getenv('DB_NAME')     ?: (getenv('MYSQL_DATABASE') ?: "b32_42851003_smartcampus");
 $port     = getenv('DB_PORT')     ? (int)getenv('DB_PORT')     : 3306;
 
-$conn = new mysqli($host, $username, $password, $database, $port);
+mysqli_report(MYSQLI_REPORT_OFF);
 
-if ($conn->connect_error) {
-    die("Database connection failed: " . $conn->connect_error);
+$conn = mysqli_init();
+$conn->options(MYSQLI_OPT_CONNECT_TIMEOUT, 5);
+$connected = @$conn->real_connect($host, $username, $password, $database, $port);
+
+if (!$connected || $conn->connect_error) {
+    // If request expects JSON API, return JSON error
+    if (!empty($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            "success" => false, 
+            "message" => "Database connection failed: " . ($conn->connect_error ?: "Connection timed out")
+        ]);
+        exit();
+    }
+    die("Database connection failed: " . ($conn->connect_error ?: "Connection timed out"));
 }
 
 $conn->set_charset("utf8mb4");

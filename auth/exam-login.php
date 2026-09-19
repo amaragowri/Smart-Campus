@@ -1,7 +1,7 @@
 <?php
 
 session_start();
-
+require_once "../config/config.php";
 require_once "../config/database.php";
 
 $error = "";
@@ -29,8 +29,12 @@ if (
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $username = trim($_POST["username"] ?? "");
-    $password = $_POST["password"] ?? "";
+    $csrf_token = $_POST["csrf_token"] ?? "";
+    if (!empty($csrf_token) && !verify_csrf_token($csrf_token)) {
+        $error = "Security validation failed. Please refresh and try again.";
+    } else {
+        $username = trim($_POST["username"] ?? "");
+        $password = $_POST["password"] ?? "";
 
 
     if ($username === "" || $password === "") {
@@ -152,6 +156,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
     }
+    }
 
 }
 
@@ -174,6 +179,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         Exam Cell Login | SmartCampus
     </title>
 
+    <meta name="csrf-token" content="<?php echo generate_csrf_token(); ?>">
+    <link rel="stylesheet" href="../assets/css/toast.css">
 
     <!-- COMMON LOGIN CSS -->
 
@@ -257,7 +264,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <form
             method="POST"
             action=""
+            data-async-auth
+            data-role="EXAM"
         >
+            <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
 
 
             <!-- USERNAME -->
@@ -494,6 +504,9 @@ passwordToggle.addEventListener(
 );
 
 </script>
+
+<script src="../assets/js/toast.js"></script>
+<script src="../assets/js/app.js"></script>
 
 </body>
 

@@ -1,0 +1,179 @@
+/**
+ * SmartCampus Modern UI Enhancements: Toast Notifications & Interactive Components
+ */
+
+:root {
+    --toast-bg-dark: rgba(26, 32, 44, 0.95);
+    --toast-text: #ffffff;
+    --toast-success: #10b981;
+    --toast-error: #ef4444;
+    --toast-warning: #f59e0b;
+    --toast-info: #3b82f6;
+    --toast-radius: 12px;
+    --toast-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+}
+
+/* Toast Container */
+#smartcampus-toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 400px;
+    width: calc(100% - 48px);
+    pointer-events: none;
+}
+
+/* Individual Toast */
+.sc-toast {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: var(--toast-radius);
+    background: var(--toast-bg-dark);
+    color: var(--toast-text);
+    box-shadow: var(--toast-shadow);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    pointer-events: auto;
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    animation: scToastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transition: transform 0.2s ease, opacity 0.25s ease;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.sc-toast:hover {
+    transform: translateY(-2px);
+}
+
+.sc-toast.sc-toast-hiding {
+    animation: scToastSlideOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Toast Status Variations */
+.sc-toast.sc-toast-success {
+    border-left: 4px solid var(--toast-success);
+}
+.sc-toast.sc-toast-error {
+    border-left: 4px solid var(--toast-error);
+}
+.sc-toast.sc-toast-warning {
+    border-left: 4px solid var(--toast-warning);
+}
+.sc-toast.sc-toast-info {
+    border-left: 4px solid var(--toast-info);
+}
+
+/* Toast Icon */
+.sc-toast-icon {
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Toast Content */
+.sc-toast-content {
+    flex-grow: 1;
+}
+
+.sc-toast-title {
+    font-weight: 600;
+    margin-bottom: 2px;
+    color: #fff;
+}
+
+.sc-toast-message {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 13px;
+    word-break: break-word;
+}
+
+/* Toast Close Button */
+.sc-toast-close {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s ease;
+    line-height: 1;
+}
+
+.sc-toast-close:hover {
+    color: #ffffff;
+}
+
+/* Animations */
+@keyframes scToastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes scToastSlideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%) scale(0.9);
+    }
+}
+
+/* Button Loading Spinner State */
+.btn.is-loading,
+button.is-loading {
+    position: relative;
+    pointer-events: none;
+    color: transparent !important;
+}
+
+.btn.is-loading::after,
+button.is-loading::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: calc(50% - 10px);
+    left: calc(50% - 10px);
+    border: 2.5px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #ffffff;
+    animation: scSpin 0.75s infinite linear;
+}
+
+@keyframes scSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Mobile Responsiveness for Toasts */
+@media (max-width: 600px) {
+    #smartcampus-toast-container {
+        top: 16px;
+        right: 16px;
+        left: 16px;
+        width: auto;
+    }
+}
